@@ -141,7 +141,7 @@ export default function SettingsPage() {
               <input
                 value={accName}
                 onChange={(e) => setAccName(e.target.value)}
-                placeholder="e.g. Maybank Credit Card"
+                placeholder="e.g. My Credit Card"
                 className="game-input"
               />
               <select
@@ -273,7 +273,7 @@ export default function SettingsPage() {
             </p>
             <Button
               variant="destructive"
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => signOut({ callbackUrl: "/coinquest/login" })}
             >
               Sign Out
             </Button>

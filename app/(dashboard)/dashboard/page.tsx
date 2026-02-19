@@ -6,6 +6,8 @@ import { GameWindow, StatRow } from "@/components/game/GameWindow";
 import { GoldCounter, ResourceBar } from "@/components/game/GoldCounter";
 import { QuestLog } from "@/components/game/QuestLog";
 import { Hotbar } from "@/components/game/Hotbar";
+import { RpgMenu } from "@/components/game/RpgMenu";
+import { FirstQuest } from "@/components/game/FirstQuest";
 import { Upload, ListTodo, PieChart, FileText, Settings } from "lucide-react";
 import Link from "next/link";
 
@@ -110,8 +112,22 @@ export default async function DashboardPage() {
   const deltaPercent =
     prevSpend > 0 ? ((totalSpend - prevSpend) / prevSpend) * 100 : 0;
 
+  const isDemo = session.user.email === "demo@coinquest.app";
+
+  const hasAccount = accounts.length > 0;
+  const hasImport = !!latestBatch;
+  const hasBudget = budgets.length > 0;
+  const hasInsight = !!insight;
+
+  const firstQuestSteps = [
+    { id: "account", label: "Create a bank account in Settings", href: "/settings", done: hasAccount, locked: false },
+    { id: "import", label: "Import a bank statement", href: "/import", done: hasImport, locked: !hasAccount },
+    { id: "budget", label: "Set a monthly budget", href: "/budgets", done: hasBudget, locked: !hasImport },
+    { id: "insights", label: "Generate financial insights", href: "/insights", done: hasInsight, locked: !hasBudget },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4 py-4 pb-20 sm:pb-4">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* LEFT: Character Panel */}
@@ -191,6 +207,9 @@ export default async function DashboardPage() {
 
         {/* CENTER: Main Window */}
         <div className="lg:col-span-6 flex flex-col gap-4">
+          {/* First Quest checklist */}
+          <FirstQuest steps={firstQuestSteps} isDemo={isDemo} />
+
           {/* Overview */}
           <GameWindow title={`Overview — ${getMonthLabel(month)}`} icon="📊">
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -358,16 +377,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Hotbar */}
-      <Hotbar
-        items={[
-          { label: "Import", icon: "📥", href: "/import", variant: "gold" },
-          { label: "Transactions", icon: "📜", href: "/transactions" },
-          { label: "Budgets", icon: "🛡", href: "/budgets" },
-          { label: "Insights", icon: "🔮", href: "/insights" },
-          { label: "Settings", icon: "⚙", href: "/settings" },
-        ]}
-      />
+
     </div>
   );
 }

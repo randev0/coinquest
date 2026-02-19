@@ -1,5 +1,6 @@
 {
   "name": "coinquest",
+  "description": "Personal finance tracker with RPG-style insights. Supports any bank CSV imports.",
   "version": "0.1.0",
   "private": true,
   "scripts": {

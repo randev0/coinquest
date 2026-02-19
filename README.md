@@ -1,7 +1,7 @@
 # CoinQuest 🛡️
 
-A personal finance tracker for Malaysia.
-Supports Maybank and CIMB credit card statement imports (CSV), subscription detection, budgets, and AI-generated insights.
+A personal finance tracker with RPG-style insights.
+Supports any bank CSV statement imports with auto-detection, subscription detection, budgets, and AI-generated insights.
 
 > ⚔ DISCLAIMER: CoinQuest is for expense tracking only. Not financial advice.
 
@@ -9,7 +9,7 @@ Supports Maybank and CIMB credit card statement imports (CSV), subscription dete
 
 ## Features
 
-- **CSV Import** — Maybank + CIMB credit card statements with heuristic column detection
+- **CSV Import** — Any bank CSV with heuristic column detection
 - **Auto-Categorization** — Rule engine with 60+ built-in merchant rules
 - **Deduplication** — SHA-256 fingerprint prevents duplicate imports
 - **Subscription Detector** — Identifies recurring charges across months
@@ -90,8 +90,8 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## How to Export Statements
 
-### Maybank Credit Card
-1. Log in to Maybank2U (www.maybank2u.com.my)
+### Credit Card Format Example
+1. Log in to your online banking
 2. Go to **Accounts & Banking** → **Credit Cards**
 3. Select your credit card
 4. Click **Statement** → select month
@@ -99,8 +99,8 @@ Open [http://localhost:3000](http://localhost:3000)
 
 **Expected columns:** `Date, Description, Amount, Balance`
 
-### CIMB Credit Card
-1. Log in to CIMB Clicks (www.cimbclicks.com.my)
+### Debit Card Format Example
+1. Log in to your online banking
 2. Go to **Cards** → **Credit Card**
 3. Select card → **e-Statement**
 4. Click **Download CSV**
@@ -115,8 +115,8 @@ Open [http://localhost:3000](http://localhost:3000)
 
 | Profile | Detection | Columns |
 |---------|-----------|---------|
-| `MaybankProfile` | Date + Description headers | Date, Description, Amount/Debit/Credit |
-| `CimbProfile` | "Transaction Date" or "Posting Date" | Transaction Date, Description, Amount |
+| `BankProfileA` | Date + Description headers | Date, Description, Amount/Debit/Credit |
+| `BankProfileB` | "Transaction Date" or "Posting Date" | Transaction Date, Description, Amount |
 | Heuristic fallback | Auto-detect | Any format with date + text + numbers |
 
 ### Adding a New Profile
@@ -145,7 +145,7 @@ export const YourBankProfile: StatementProfile = {
 Then register in `lib/parser/csv-parser.ts`:
 ```typescript
 import { YourBankProfile } from "./profiles/yourbank";
-const PROFILES = [CimbProfile, MaybankProfile, YourBankProfile];
+const PROFILES = [BankProfileA, BankProfileB, YourBankProfile];
 ```
 
 ### Column Mapping Override
@@ -174,7 +174,7 @@ To manually override detection, edit the `mapColumns()` return in the profile fi
 
 ```bash
 # 1. Import same CSV twice — no duplicates
-#    Import fixtures/maybank-sample.csv twice for same account/month
+#    Import fixtures/sample-statement.csv twice for same account/month
 #    → Second import: importedRows=0, skippedRows=17
 
 # 2. Create rule "NETFLIX" → all matching transactions categorized as Subscriptions

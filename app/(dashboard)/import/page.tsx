@@ -144,7 +144,7 @@ export default function ImportPage() {
                     Drop CSV here or click to browse
                   </p>
                   <p className="text-[10px] text-mmorpg-steel/60">
-                    Maybank / CIMB credit card statements
+                    Any bank CSV statement
                   </p>
                 </div>
               )}
@@ -279,16 +279,25 @@ export default function ImportPage() {
           {/* Format guide */}
           <GameWindow title="Supported Formats" icon="📖" collapsible defaultCollapsed>
             <div className="flex flex-col gap-3">
+              <p className="text-[10px] text-mmorpg-steelLight">
+                Works with <strong className="text-mmorpg-gold">any bank</strong> CSV export.
+                Auto-detects columns for Date, Description, and Amount.
+              </p>
               {[
                 {
-                  name: "Maybank Credit Card",
-                  format: "Date, Description, Amount, Balance",
-                  note: "Export from Maybank2U → Accounts → Credit Card → Download Statement",
+                  name: "Generic CSV",
+                  format: "Date, Description, Amount (or Debit/Credit)",
+                  note: "Most banks: Look for Download CSV or Export in online banking",
                 },
                 {
-                  name: "CIMB Credit Card",
+                  name: "Credit Card (Example)",
+                  format: "Date, Description, Amount, Balance",
+                  note: "Most banks: Look for Export or Download CSV in online banking",
+                },
+                {
+                  name: "Debit Card (Example)",
                   format: "Transaction Date, Description, Amount, Balance",
-                  note: "Export from CIMB Clicks → Cards → Statement → Download CSV",
+                  note: "Export from your bank website or mobile app",
                 },
               ].map((fmt) => (
                 <div key={fmt.name} className="border-b border-mmorpg-border/40 pb-2">

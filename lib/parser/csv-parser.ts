@@ -9,10 +9,11 @@ import {
   generateFingerprint,
   isNumeric,
 } from "@/lib/utils";
-import { MaybankProfile } from "./profiles/maybank";
-import { CimbProfile } from "./profiles/cimb";
+import { BankProfileA } from "./profiles/bank-format-a";
+import { BankProfileB } from "./profiles/bank-format-b";
+import { GenericProfile } from "./profiles/generic";
 
-const PROFILES: StatementProfile[] = [CimbProfile, MaybankProfile];
+const PROFILES: StatementProfile[] = [BankProfileB, BankProfileA, GenericProfile];
 
 export interface ParseCSVResult {
   transactions: ParsedTransaction[];
@@ -26,8 +27,8 @@ function detectProfile(headers: string[]): StatementProfile {
   for (const profile of PROFILES) {
     if (profile.detectHeaders(headers)) return profile;
   }
-  // Default: heuristic
-  return MaybankProfile;
+  // Default: use generic auto-detection
+  return GenericProfile;
 }
 
 function heuristicMapping(headers: string[], rows: Record<string, string>[]): ColumnMapping {

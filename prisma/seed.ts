@@ -132,22 +132,22 @@ async function main() {
 
   // Create demo accounts
   await prisma.account.upsert({
-    where: { userId_name: { userId: demoUser.id, name: "Maybank Credit Card" } },
+    where: { userId_name: { userId: demoUser.id, name: "Primary Credit Card" } },
     update: {},
     create: {
       userId: demoUser.id,
-      name: "Maybank Credit Card",
+      name: "Primary Credit Card",
       type: "CARD",
       currency: "MYR",
     },
   });
 
   await prisma.account.upsert({
-    where: { userId_name: { userId: demoUser.id, name: "CIMB Credit Card" } },
+    where: { userId_name: { userId: demoUser.id, name: "Secondary Debit Card" } },
     update: {},
     create: {
       userId: demoUser.id,
-      name: "CIMB Credit Card",
+      name: "Secondary Debit Card",
       type: "CARD",
       currency: "MYR",
     },

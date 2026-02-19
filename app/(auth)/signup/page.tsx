@@ -4,29 +4,57 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Shield, Coins } from "lucide-react";
+import { Shield, Swords } from "lucide-react";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("demo@coinquest.app");
-  const [password, setPassword] = useState("demo1234");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    const res = await signIn("credentials", {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Registration failed");
+      setLoading(false);
+      return;
+    }
+
+    // Auto sign-in after successful registration
+    const signInRes = await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
 
-    if (res?.error) {
-      setError("Invalid email or password");
-      setLoading(false);
+    if (signInRes?.error) {
+      setError("Account created but sign-in failed. Please log in.");
+      router.push("/login");
     } else {
       router.push("/dashboard");
     }
@@ -57,15 +85,29 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login window */}
+        {/* Sign up window */}
         <div className="game-window rounded-sm overflow-hidden">
           <div className="game-window-title px-4 py-2.5">
             <span className="font-pixel text-[9px] text-mmorpg-parchment tracking-widest uppercase">
-              ⚔ Adventurer Login
+              <Swords className="inline-block mr-1" size={10} />
+              Create Adventurer
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] text-mmorpg-steel uppercase tracking-widest">
+                Adventurer Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="game-input"
+                placeholder="Sir Richpocket"
+              />
+            </div>
+
             <div className="flex flex-col gap-1">
               <label className="font-pixel text-[8px] text-mmorpg-steel uppercase tracking-widest">
                 Email
@@ -94,6 +136,20 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] text-mmorpg-steel uppercase tracking-widest">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="game-input"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
             {error && (
               <p className="text-[10px] text-mmorpg-dangerLight font-pixel">
                 ⚠ {error}
@@ -105,20 +161,17 @@ export default function LoginPage() {
               disabled={loading}
               className="btn-gold py-3 rounded-sm w-full font-pixel text-[9px] uppercase tracking-widest"
             >
-              {loading ? "Authenticating..." : "⚔ Begin Quest"}
+              {loading ? "Creating Account..." : "⚔ Start Adventure"}
             </button>
 
             <div className="text-center">
               <p className="text-[9px] text-mmorpg-steel/60 font-pixel">
-                Demo: demo@coinquest.app / demo1234
-              </p>
-            </div>
-
-            <div className="text-center">
-              <p className="font-pixel" style={{ fontSize: "9px", color: "#7a8ba8" }}>
-                New adventurer?{" "}
-                <Link href="/signup" style={{ color: "#d4a017" }}>
-                  Create an account
+                Already an adventurer?{" "}
+                <Link
+                  href="/login"
+                  className="text-mmorpg-gold hover:underline"
+                >
+                  Sign in
                 </Link>
               </p>
             </div>

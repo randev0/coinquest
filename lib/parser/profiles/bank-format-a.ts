@@ -2,15 +2,15 @@ import { StatementProfile, ColumnMapping } from "@/types";
 import { TransactionDirection } from "@prisma/client";
 import { parseAmount } from "@/lib/utils";
 
-// Maybank Credit Card CSV profile
+// Bank Format A CSV profile
 // Typical headers: Date, Description, Amount, Balance
 // Or: Date, Description, Debit, Credit, Balance
-export const MaybankProfile: StatementProfile = {
-  name: "Maybank",
+export const BankProfileA: StatementProfile = {
+  name: "Bank Format A",
 
   detectHeaders(headers: string[]): boolean {
     const normalized = headers.map((h) => h.toUpperCase().trim());
-    // Look for Maybank-ish columns
+    // Look for standard date/description columns
     const hasDate = normalized.some((h) => h.includes("DATE") || h.includes("TARIKH"));
     const hasDesc = normalized.some(
       (h) => h.includes("DESCRIPTION") || h.includes("KETERANGAN") || h.includes("TRANSACTION")

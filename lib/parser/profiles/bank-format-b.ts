@@ -2,24 +2,24 @@ import { StatementProfile, ColumnMapping } from "@/types";
 import { TransactionDirection } from "@prisma/client";
 import { parseAmount } from "@/lib/utils";
 
-// CIMB Credit Card CSV profile
+// Bank Format B CSV profile
 // Typical: Transaction Date, Description, Foreign Amount, Amount
 // Or: Date, Transaction, Debit, Credit, Balance
-export const CimbProfile: StatementProfile = {
-  name: "CIMB",
+export const BankProfileB: StatementProfile = {
+  name: "Bank Format B",
 
   detectHeaders(headers: string[]): boolean {
     const normalized = headers.map((h) => h.toUpperCase().trim());
-    const hasCimbHint = normalized.some(
+    const hasDateHint = normalized.some(
       (h) => h.includes("TRANSACTION DATE") || h.includes("FOREIGN") || h.includes("POSTING DATE")
     );
-    return hasCimbHint;
+    return hasDateHint;
   },
 
   mapColumns(headers: string[]): ColumnMapping {
     const normalized = headers.map((h) => h.toUpperCase().trim());
 
-    // Prefer "Transaction Date" over "Posting Date" for CIMB
+    // Prefer "Transaction Date" over "Posting Date"
     const txDateIdx = normalized.findIndex((h) => h.includes("TRANSACTION DATE") || h.includes("TRANS DATE"));
     const postDateIdx = normalized.findIndex((h) => h.includes("POSTING DATE") || h.includes("DATE"));
     const dateIdx = txDateIdx >= 0 ? txDateIdx : postDateIdx;

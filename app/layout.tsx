@@ -19,7 +19,7 @@ const bodyFont = Inter({
 export const metadata: Metadata = {
   title: "CoinQuest — Personal Finance for Malaysia",
   description:
-    "Track your Maybank & CIMB statements, detect subscriptions, and manage budgets with RPG-style insights.",
+    "Track your bank statements, detect subscriptions, and manage budgets with RPG-style insights.",
 };
 
 export default function RootLayout({
@@ -29,6 +29,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${pixelFont.variable} ${bodyFont.variable}`}>
+      <head>
+        {/* Tell NextAuth about the basePath so signIn() uses the correct URL */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__NEXT_ROUTER_BASEPATH__ = '/coinquest';`,
+          }}
+        />
+      </head>
       <body className="antialiased">
         <Providers>{children}</Providers>
       </body>

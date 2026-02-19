@@ -1,6 +1,6 @@
 # CoinQuest 🛡️
 
-A personal finance tracker for Malaysia, inspired by classic MMORPG UIs (Ragnarok Online aesthetic).
+A personal finance tracker for Malaysia.
 Supports Maybank and CIMB credit card statement imports (CSV), subscription detection, budgets, and AI-generated insights.
 
 > ⚔ DISCLAIMER: CoinQuest is for expense tracking only. Not financial advice.

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn, formatMYR, getMonthLabel } from "@/lib/utils";
-import { Shield, Coins, TrendingUp, Calendar, ChevronDown } from "lucide-react";
+import { Shield, Coins, Calendar, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -44,23 +44,36 @@ export function HudBar({ month, totalSpend, userName }: HudBarProps) {
     <div className="status-bar sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
 
-        {/* Left: Logo + User */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="flex items-center gap-2">
-            <Shield className="text-mmorpg-gold" size={18} />
-            <span className="font-pixel text-[11px] text-mmorpg-gold tracking-widest">
-              COINQUEST
-            </span>
-          </div>
-          {userName && (
-            <span className="text-[9px] font-pixel text-mmorpg-steel hidden sm:block">
-              [{userName}]
-            </span>
-          )}
+        {/* Left: Logo */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Shield className="text-mmorpg-gold" size={18} />
+          <span className="font-pixel text-[11px] text-mmorpg-gold tracking-widest hidden sm:block">
+            COINQUEST
+          </span>
         </div>
 
-        {/* Center: Dropdown nav */}
-        <div className="relative" ref={dropdownRef}>
+        {/* Center: Full nav tabs (desktop) */}
+        <nav className="hidden md:flex items-center gap-1">
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "game-tab flex items-center gap-1.5",
+                  isActive && "active"
+                )}
+              >
+                <span className="text-xs">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Center: Dropdown nav (mobile only) */}
+        <div className="relative md:hidden" ref={dropdownRef}>
           <button
             onClick={() => setOpen((v) => !v)}
             className="game-tab active flex items-center gap-2"
@@ -89,19 +102,6 @@ export function HudBar({ month, totalSpend, userName }: HudBarProps) {
                 boxShadow: "0 4px 24px rgba(0,0,0,0.8), 0 0 0 1px #2a3650, inset 1px 1px 0 rgba(255,255,255,0.05)",
               }}
             >
-              {/* Dropdown title bar */}
-              <div
-                style={{
-                  background: "linear-gradient(90deg, #1a2540 0%, #1e2d4a 50%, #1a2540 100%)",
-                  borderBottom: "1px solid #2a3650",
-                  padding: "4px 10px",
-                }}
-              >
-                <span className="font-pixel" style={{ fontSize: "8px", color: "#7a8ba8", letterSpacing: "0.1em" }}>
-                  ── NAVIGATE ──
-                </span>
-              </div>
-
               {NAV_ITEMS.map((item, i) => {
                 const isActive = pathname === item.href;
                 return (
@@ -151,24 +151,30 @@ export function HudBar({ month, totalSpend, userName }: HudBarProps) {
           )}
         </div>
 
-        {/* Right: HUD stats */}
-        <div className="flex items-center gap-4 shrink-0">
-          <div className="flex items-center gap-1.5 hidden md:flex">
+        {/* Right: spend this month */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="hidden md:flex items-center gap-1.5">
             <Calendar size={11} className="text-mmorpg-steel" />
             <span className="text-[9px] font-pixel text-mmorpg-steelLight">
               {getMonthLabel(month)}
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Coins size={12} className="text-mmorpg-gold" />
-            <span className="text-[10px] font-pixel text-mmorpg-gold">
-              {formatMYR(totalSpend)}
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-1.5">
+              <Coins size={12} className="text-mmorpg-gold" />
+              <span className="text-[10px] font-pixel text-mmorpg-gold">
+                {formatMYR(totalSpend)}
+              </span>
+            </div>
+            <span className="text-[7px] font-pixel text-mmorpg-steel/60 hidden lg:block">
+              spent this month
             </span>
           </div>
-          <div className="flex items-center gap-1.5 hidden lg:flex">
-            <TrendingUp size={11} className="text-mmorpg-accentBlue" />
-            <span className="text-[9px] font-pixel text-mmorpg-accentBlue">SPEND</span>
-          </div>
+          {userName && (
+            <span className="text-[9px] font-pixel text-mmorpg-steel hidden lg:block">
+              [{userName}]
+            </span>
+          )}
         </div>
 
       </div>

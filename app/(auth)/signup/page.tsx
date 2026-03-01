@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Shield, Swords } from "lucide-react";
+import { Shield } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -89,22 +89,21 @@ export default function SignupPage() {
         <div className="game-window rounded-sm overflow-hidden">
           <div className="game-window-title px-4 py-2.5">
             <span className="font-pixel text-[9px] text-mmorpg-parchment tracking-widest uppercase">
-              <Swords className="inline-block mr-1" size={10} />
-              Create Adventurer
+              Create Account
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="font-pixel text-[8px] text-mmorpg-steel uppercase tracking-widest">
-                Adventurer Name
+                Your Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="game-input"
-                placeholder="Sir Richpocket"
+                placeholder="Ali Ahmad"
               />
             </div>
 
@@ -117,7 +116,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="game-input"
-                placeholder="hero@example.com"
+                placeholder="you@example.com"
                 required
               />
             </div>
@@ -161,12 +160,12 @@ export default function SignupPage() {
               disabled={loading}
               className="btn-gold py-3 rounded-sm w-full font-pixel text-[9px] uppercase tracking-widest"
             >
-              {loading ? "Creating Account..." : "⚔ Start Adventure"}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
 
             <div className="text-center">
               <p className="text-[9px] text-mmorpg-steel/60 font-pixel">
-                Already an adventurer?{" "}
+                Already have an account?{" "}
                 <Link
                   href="/login"
                   className="text-mmorpg-gold hover:underline"
@@ -180,7 +179,7 @@ export default function SignupPage() {
 
         <div className="text-center mt-6">
           <p className="text-[9px] text-mmorpg-steel/40">
-            ⚔ This app is for tracking only, not financial advice.
+            For expense tracking only — not financial advice.
           </p>
         </div>
       </div>

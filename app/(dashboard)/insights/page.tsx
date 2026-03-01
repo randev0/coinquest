@@ -56,6 +56,10 @@ export default function InsightsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <h1 className="font-pixel text-[12px] text-mmorpg-gold tracking-wider">Financial Insights</h1>
+        <p className="text-sm text-mmorpg-steel mt-1">AI-powered analysis of your spending habits and money leaks.</p>
+      </div>
       {/* Header controls */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -136,7 +140,7 @@ export default function InsightsPage() {
                 {/* Leak detector */}
                 {insights.leakCategory && (
                   <div className="p-3 bg-mmorpg-danger/10 border border-mmorpg-danger/30 rounded-sm">
-                    <p className="font-pixel text-[8px] text-mmorpg-dangerLight uppercase mb-1">⚠ Leak Detected</p>
+                    <p className="font-pixel text-[8px] text-mmorpg-dangerLight uppercase mb-1">⚠ Spending Spike</p>
                     <p className="text-[10px] text-mmorpg-parchment">{insights.leakCategory.categoryName}</p>
                     <p className="text-[9px] text-mmorpg-steel mt-0.5">
                       +{insights.leakCategory.increasePercent.toFixed(0)}% vs last month
@@ -253,13 +257,23 @@ export default function InsightsPage() {
 
         {/* RIGHT: Quest Log */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          <GameWindow title="Quest Log — Suggestions" icon="📜" badge={quests.length}>
+          <GameWindow
+            title="AI Suggestions"
+            icon="💡"
+            badge={quests.length}
+            subtitle={insights?.aiGenerated ? "✦ AI-powered" : undefined}
+          >
             <QuestLog
               quests={quests}
               onStatusChange={(id, status) => {
                 setQuestStatuses((prev) => ({ ...prev, [id]: status }));
               }}
             />
+            {insights?.aiGenerated && (
+              <p className="text-[8px] text-mmorpg-steel/50 font-pixel text-right mt-3">
+                via Llama 3.3 · Groq
+              </p>
+            )}
           </GameWindow>
         </div>
       </div>

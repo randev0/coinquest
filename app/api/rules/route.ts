@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { applyRulesToAccount } from "@/lib/categorization";
+import { assertSafeRegex } from "@/lib/safe-regex";
 
 const createSchema = z.object({
   pattern: z.string().min(1).max(200),
@@ -33,6 +34,18 @@ export async function POST(req: Request) {
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  // Validate REGEX patterns for safety before persisting
+  if (parsed.data.matchType === "REGEX") {
+    try {
+      assertSafeRegex(parsed.data.pattern);
+    } catch (e) {
+      return NextResponse.json(
+        { error: e instanceof Error ? e.message : "Invalid regex pattern" },
+        { status: 400 }
+      );
+    }
   }
 
   const rule = await prisma.rule.create({

@@ -16,6 +16,7 @@ interface GameWindowProps {
   defaultCollapsed?: boolean;
   badge?: string | number;
   action?: ReactNode;
+  subtitle?: string;
 }
 
 export function GameWindow({
@@ -29,6 +30,7 @@ export function GameWindow({
   defaultCollapsed = false,
   badge,
   action,
+  subtitle,
 }: GameWindowProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
@@ -51,6 +53,11 @@ export function GameWindow({
           {badge !== undefined && (
             <span className="bg-mmorpg-gold text-mmorpg-bg text-[8px] font-pixel px-1.5 py-0.5 rounded-sm">
               {badge}
+            </span>
+          )}
+          {subtitle && (
+            <span className="text-[8px] font-pixel text-mmorpg-teal opacity-80">
+              {subtitle}
             </span>
           )}
         </div>

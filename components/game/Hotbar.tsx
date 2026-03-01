@@ -32,7 +32,7 @@ export function Hotbar({ items }: HotbarProps) {
           const inner = (
             <>
               <span className="text-base">{item.icon}</span>
-              <span className="font-pixel text-[7px] uppercase tracking-wider text-mmorpg-steelLight whitespace-nowrap">
+              <span className="font-pixel text-[8px] uppercase tracking-wider text-mmorpg-steelLight whitespace-nowrap">
                 {item.label}
               </span>
               {item.shortcut && (

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Shield, Coins } from "lucide-react";
+import { Shield } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -61,7 +61,7 @@ export default function LoginPage() {
         <div className="game-window rounded-sm overflow-hidden">
           <div className="game-window-title px-4 py-2.5">
             <span className="font-pixel text-[9px] text-mmorpg-parchment tracking-widest uppercase">
-              ⚔ Adventurer Login
+              Sign In
             </span>
           </div>
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="game-input"
-                placeholder="hero@example.com"
+                placeholder="you@example.com"
                 required
               />
             </div>
@@ -105,20 +105,21 @@ export default function LoginPage() {
               disabled={loading}
               className="btn-gold py-3 rounded-sm w-full font-pixel text-[9px] uppercase tracking-widest"
             >
-              {loading ? "Authenticating..." : "⚔ Begin Quest"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
-            <div className="text-center">
+            <div className="text-center border-t border-mmorpg-border/40 pt-3">
+              <p className="text-[9px] text-mmorpg-steel/70 mb-1">Try the demo account:</p>
               <p className="text-[9px] text-mmorpg-steel/60 font-pixel">
-                Demo: demo@coinquest.app / demo1234
+                demo@coinquest.app / demo1234
               </p>
             </div>
 
             <div className="text-center">
               <p className="font-pixel" style={{ fontSize: "9px", color: "#7a8ba8" }}>
-                New adventurer?{" "}
+                No account?{" "}
                 <Link href="/signup" style={{ color: "#d4a017" }}>
-                  Create an account
+                  Create one free
                 </Link>
               </p>
             </div>
@@ -127,7 +128,7 @@ export default function LoginPage() {
 
         <div className="text-center mt-6">
           <p className="text-[9px] text-mmorpg-steel/40">
-            ⚔ This app is for tracking only, not financial advice.
+            For expense tracking only — not financial advice.
           </p>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isSafeRegex } from "./safe-regex";
 
 interface Rule {
   id: string;
@@ -19,6 +20,8 @@ export function matchRule(rule: Rule, normalizedDescription: string): boolean {
       return desc === pattern;
     case "REGEX":
       try {
+        // Only execute patterns that pass the ReDoS safety check
+        if (!isSafeRegex(rule.pattern)) return false;
         return new RegExp(rule.pattern, "i").test(normalizedDescription);
       } catch {
         return false;

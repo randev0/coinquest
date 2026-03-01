@@ -95,6 +95,10 @@ export default function BudgetsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <h1 className="font-pixel text-[12px] text-mmorpg-gold tracking-wider">Monthly Budgets</h1>
+        <p className="text-sm text-mmorpg-steel mt-1">Set spending limits per category and track how you&apos;re doing.</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Budget List */}

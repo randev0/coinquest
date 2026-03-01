@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { InsightData, CategoryTotal, MerchantTotal, MonthComparison, CategoryLeak } from "@/types";
 import { getPreviousMonth, formatMYR } from "@/lib/utils";
 import { detectSubscriptions } from "./subscription-detector";
+import { generateAISuggestions } from "./ai-suggestions";
 
 export async function generateInsights(
   userId: string,
@@ -136,59 +137,8 @@ export async function generateInsights(
     }
   }
 
-  // Generate suggestions
-  const suggestions: string[] = [];
-
-  if (subscriptionTotal > 0) {
-    const subNames = monthSubs
-      .slice(0, 3)
-      .map((s) => s.merchant)
-      .join(", ");
-    suggestions.push(
-      `Subscriptions cost ${formatMYR(subscriptionTotal)} (${subscriptionShare.toFixed(1)}% of spend). Top: ${subNames || "see subscriptions tab"}`
-    );
-  }
-
-  if (leakCategory && leakCategory.increasePercent > 20) {
-    suggestions.push(
-      `${leakCategory.categoryName} increased by ${formatMYR(leakCategory.increase)} (+${leakCategory.increasePercent.toFixed(0)}%) vs last month`
-    );
-  }
-
-  const feesCategory = Array.from(catMap.values()).find((c) => c.categoryName === "Fees");
-  if (feesCategory && feesCategory.total > 0) {
-    suggestions.push(
-      `Bank fees detected: ${formatMYR(feesCategory.total)}. Review your account to avoid these charges.`
-    );
-  }
-
-  if (topCategories.length > 0) {
-    const top = topCategories[0];
-    const pct = totalSpend > 0 ? (top.total / totalSpend) * 100 : 0;
-    if (pct > 40) {
-      suggestions.push(
-        `${top.categoryName} accounts for ${pct.toFixed(0)}% of spending (${formatMYR(top.total)}). Your biggest expense this month.`
-      );
-    }
-  }
-
-  if (previousMonthComparison && previousMonthComparison.deltaPercent > 15) {
-    suggestions.push(
-      `Total spend is up ${previousMonthComparison.deltaPercent.toFixed(0)}% vs last month (${formatMYR(previousMonthComparison.previousTotal)} → ${formatMYR(totalSpend)})`
-    );
-  }
-
-  if (totalIncome > 0 && totalSpend > totalIncome) {
-    suggestions.push(
-      `Spend (${formatMYR(totalSpend)}) exceeded income (${formatMYR(totalIncome)}) this month. Review your top categories.`
-    );
-  }
-
-  if (suggestions.length === 0) {
-    suggestions.push("Looking good! No major issues detected this month.");
-  }
-
-  const insightData: InsightData = {
+  // Build base insight data (needed for both AI and fallback suggestions)
+  const baseInsightData: InsightData = {
     month,
     totalSpend,
     totalIncome,
@@ -199,7 +149,77 @@ export async function generateInsights(
     subscriptionShare,
     previousMonthComparison,
     leakCategory,
+    suggestions: [],
+  };
+
+  // Try AI-generated suggestions first
+  const aiSuggestions = await generateAISuggestions(baseInsightData);
+
+  // Fall back to heuristic suggestions if AI is unavailable
+  let suggestions: string[];
+  let aiGenerated: boolean;
+
+  if (aiSuggestions && aiSuggestions.length > 0) {
+    suggestions = aiSuggestions;
+    aiGenerated = true;
+  } else {
+    aiGenerated = false;
+    suggestions = [];
+
+    if (subscriptionTotal > 0) {
+      const subNames = monthSubs
+        .slice(0, 3)
+        .map((s) => s.merchant)
+        .join(", ");
+      suggestions.push(
+        `Subscriptions cost ${formatMYR(subscriptionTotal)} (${subscriptionShare.toFixed(1)}% of spend). Top: ${subNames || "see subscriptions tab"}`
+      );
+    }
+
+    if (leakCategory && leakCategory.increasePercent > 20) {
+      suggestions.push(
+        `${leakCategory.categoryName} increased by ${formatMYR(leakCategory.increase)} (+${leakCategory.increasePercent.toFixed(0)}%) vs last month`
+      );
+    }
+
+    const feesCategory = Array.from(catMap.values()).find((c) => c.categoryName === "Fees");
+    if (feesCategory && feesCategory.total > 0) {
+      suggestions.push(
+        `Bank fees detected: ${formatMYR(feesCategory.total)}. Review your account to avoid these charges.`
+      );
+    }
+
+    if (topCategories.length > 0) {
+      const top = topCategories[0];
+      const pct = totalSpend > 0 ? (top.total / totalSpend) * 100 : 0;
+      if (pct > 40) {
+        suggestions.push(
+          `${top.categoryName} accounts for ${pct.toFixed(0)}% of spending (${formatMYR(top.total)}). Your biggest expense this month.`
+        );
+      }
+    }
+
+    if (previousMonthComparison && previousMonthComparison.deltaPercent > 15) {
+      suggestions.push(
+        `Total spend is up ${previousMonthComparison.deltaPercent.toFixed(0)}% vs last month (${formatMYR(previousMonthComparison.previousTotal)} → ${formatMYR(totalSpend)})`
+      );
+    }
+
+    if (totalIncome > 0 && totalSpend > totalIncome) {
+      suggestions.push(
+        `Spend (${formatMYR(totalSpend)}) exceeded income (${formatMYR(totalIncome)}) this month. Review your top categories.`
+      );
+    }
+
+    if (suggestions.length === 0) {
+      suggestions.push("Looking good! No major issues detected this month.");
+    }
+  }
+
+  const insightData: InsightData = {
+    ...baseInsightData,
     suggestions,
+    aiGenerated,
   };
 
   // Upsert insight

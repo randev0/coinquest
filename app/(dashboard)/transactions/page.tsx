@@ -151,7 +151,7 @@ export default function TransactionsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <GameWindow
-        title="Inventory — Transactions"
+        title="Transactions"
         icon="📜"
         badge={data?.total}
         action={

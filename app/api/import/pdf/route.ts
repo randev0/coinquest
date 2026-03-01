@@ -2,29 +2,25 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { parseCSVContent } from "@/lib/parser/csv-parser";
+import { parsePDFContent } from "@/lib/parser/pdf-parser";
 import { categorizeTransaction } from "@/lib/categorization";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 /** Strip path separators and null bytes from a filename before storing it. */
 function sanitizeFilename(name: string): string {
   return name.replace(/[/\\?%*:|"<>\x00]/g, "_").substring(0, 255);
 }
 
-/**
- * Reject files that contain binary content not expected in a CSV.
- * Checks the first 512 bytes for non-text control characters.
- */
-function isTextFile(buffer: Uint8Array): boolean {
-  const sample = buffer.slice(0, 512);
-  for (const byte of sample) {
-    // Allow tab (9), newline (10), carriage return (13), and printable chars (32-126) and UTF-8 (128+)
-    if (byte < 9 || (byte > 13 && byte < 32 && byte !== 27)) {
-      return false;
-    }
-  }
-  return true;
+/** Verify the buffer starts with the PDF magic bytes: %PDF */
+function isPdfBuffer(buffer: Buffer): boolean {
+  return (
+    buffer.length >= 4 &&
+    buffer[0] === 0x25 && // %
+    buffer[1] === 0x50 && // P
+    buffer[2] === 0x44 && // D
+    buffer[3] === 0x46    // F
+  );
 }
 
 export async function POST(req: Request) {
@@ -52,19 +48,18 @@ export async function POST(req: Request) {
 
   // File size check
   if (file.size > MAX_FILE_SIZE) {
-    return NextResponse.json({ error: "File too large (max 5MB)" }, { status: 400 });
+    return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
   }
 
-  // Read into buffer for validation before trusting content
+  // Read buffer first so we can validate magic bytes before doing anything else
   const arrayBuffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
+  const buffer = Buffer.from(arrayBuffer);
 
-  // Reject binary files — CSV must be plain text
-  if (!isTextFile(bytes)) {
-    return NextResponse.json({ error: "Invalid file type. Only plain-text CSV files are accepted." }, { status: 400 });
+  // Validate PDF magic bytes — extension checks alone are trivially bypassed
+  if (!isPdfBuffer(buffer)) {
+    return NextResponse.json({ error: "Invalid file type. Only PDF files are accepted." }, { status: 400 });
   }
 
-  const csvContent = new TextDecoder().decode(bytes);
   const safeFilename = sanitizeFilename(file.name);
 
   // Verify account belongs to user
@@ -75,7 +70,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Account not found" }, { status: 404 });
   }
 
-  // Create import batch
   const batch = await prisma.importBatch.create({
     data: {
       userId: session.user.id,
@@ -87,14 +81,12 @@ export async function POST(req: Request) {
   });
 
   try {
-    // Parse CSV
-    const { transactions, profile, errors } = parseCSVContent(csvContent, accountId);
+    const { transactions, profile, errors } = await parsePDFContent(buffer, accountId);
 
     let importedRows = 0;
     let skippedRows = 0;
     let duplicateCount = 0;
 
-    // Insert transactions
     for (const tx of transactions) {
       const existing = await prisma.transaction.findFirst({
         where: { fingerprint: tx.fingerprint, accountId },
@@ -158,7 +150,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     // Log full error server-side only; return a generic message to the client
-    console.error("[import/csv] processing error:", err);
+    console.error("[import/pdf] processing error:", err);
 
     await prisma.importBatch.update({
       where: { id: batch.id },

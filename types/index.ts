@@ -40,6 +40,7 @@ export interface InsightData {
   previousMonthComparison?: MonthComparison;
   leakCategory?: CategoryLeak;
   suggestions: string[];
+  aiGenerated?: boolean;
 }
 
 export interface CategoryTotal {

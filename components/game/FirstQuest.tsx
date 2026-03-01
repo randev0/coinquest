@@ -27,9 +27,9 @@ export function FirstQuest({ steps, isDemo = false }: FirstQuestProps) {
     <div className="game-window rounded-sm p-4 border-2 border-mmorpg-gold/50 bg-mmorpg-panel/80">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-lg">⚔️</span>
+          <span className="text-lg">🚀</span>
           <h2 className="font-pixel text-[10px] text-mmorpg-gold uppercase tracking-wider">
-            First Quest
+            Getting Started
           </h2>
         </div>
         <span className="font-pixel text-[8px] text-mmorpg-steel">
@@ -39,11 +39,11 @@ export function FirstQuest({ steps, isDemo = false }: FirstQuestProps) {
 
       {allDone && isDemo ? (
         <p className="text-[10px] text-mmorpg-successLight mb-3 font-pixel">
-          ✓ Quest complete! (Demo resets on each login)
+          ✓ All set! (Demo account resets on each login)
         </p>
       ) : (
         <p className="text-[10px] text-mmorpg-steelLight mb-3">
-          Complete these steps to begin your adventure
+          Complete these steps to start tracking your finances
         </p>
       )}
 

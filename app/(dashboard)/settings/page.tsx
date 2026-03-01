@@ -48,20 +48,25 @@ export default function SettingsPage() {
   const createAccount = async () => {
     if (!accName.trim()) return;
     setSavingAcc(true);
-    const res = await fetch("/api/accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: accName, type: accType, currency: "MYR" }),
-    });
-    if (res.ok) {
-      toast({ title: "Account created!" });
-      setAccName("");
-      mutateAccounts();
-    } else {
-      const data = await res.json();
-      toast({ title: "Error", description: data.error?.message || "Failed", variant: "destructive" });
+    try {
+      const res = await fetch("/api/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: accName, type: accType, currency: "MYR" }),
+      });
+      if (res.ok) {
+        toast({ title: "Account created!" });
+        setAccName("");
+        mutateAccounts();
+      } else {
+        const data = await res.json();
+        toast({ title: "Error", description: data.error?.message || "Failed", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Network error. Please try again.", variant: "destructive" });
+    } finally {
+      setSavingAcc(false);
     }
-    setSavingAcc(false);
   };
 
   const deleteAccount = async (id: string) => {
@@ -108,6 +113,10 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <h1 className="font-pixel text-[12px] text-mmorpg-gold tracking-wider">Settings</h1>
+        <p className="text-sm text-mmorpg-steel mt-1">Manage your bank accounts, auto-categorization rules, and session.</p>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Accounts */}
@@ -201,32 +210,47 @@ export default function SettingsPage() {
 
             {/* Add rule */}
             <div className="border-t border-mmorpg-border/50 pt-4 flex flex-col gap-3">
-              <p className="font-pixel text-[8px] text-mmorpg-steel uppercase tracking-wider">Add Rule</p>
+              <div>
+                <p className="font-pixel text-[8px] text-mmorpg-steel uppercase tracking-wider mb-1">Add Rule</p>
+                <p className="text-[9px] text-mmorpg-steel/70">
+                  Rules auto-categorize transactions by matching the description text.
+                </p>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <input
                   value={rulePattern}
                   onChange={(e) => setRulePattern(e.target.value)}
-                  placeholder="Pattern (e.g. NETFLIX)"
+                  placeholder="Keyword (e.g. NETFLIX)"
                   className="game-input col-span-2"
                 />
-                <select
-                  value={ruleMatchType}
-                  onChange={(e) => setRuleMatchType(e.target.value as typeof ruleMatchType)}
-                  className="game-input"
-                >
-                  <option value="CONTAINS">CONTAINS</option>
-                  <option value="EXACT">EXACT</option>
-                  <option value="REGEX">REGEX</option>
-                </select>
-                <input
-                  type="number"
-                  value={rulePriority}
-                  onChange={(e) => setRulePriority(parseInt(e.target.value))}
-                  placeholder="Priority"
-                  className="game-input"
-                  min="1"
-                  max="999"
-                />
+                <div className="col-span-2 flex flex-col gap-1">
+                  <select
+                    value={ruleMatchType}
+                    onChange={(e) => setRuleMatchType(e.target.value as typeof ruleMatchType)}
+                    className="game-input"
+                  >
+                    <option value="CONTAINS">Contains — keyword appears anywhere in description</option>
+                    <option value="EXACT">Exact — description matches keyword exactly</option>
+                    <option value="REGEX">Regex — advanced pattern matching</option>
+                  </select>
+                  <p className="text-[9px] text-mmorpg-steel/60 italic">
+                    {ruleMatchType === "CONTAINS" && "Example: \"GRAB\" matches \"GRABFOOD\", \"GRAB TAXI\", etc."}
+                    {ruleMatchType === "EXACT" && "Example: \"SHOPEE PAY\" only matches that exact text."}
+                    {ruleMatchType === "REGEX" && "Example: \"GRAB.*\" matches anything starting with GRAB. Use only if you know regex."}
+                  </p>
+                </div>
+                <div className="col-span-2 flex flex-col gap-1">
+                  <input
+                    type="number"
+                    value={rulePriority}
+                    onChange={(e) => setRulePriority(parseInt(e.target.value))}
+                    placeholder="Priority (lower = checked first)"
+                    className="game-input"
+                    min="1"
+                    max="999"
+                  />
+                  <p className="text-[9px] text-mmorpg-steel/60 italic">Lower number = higher priority. Use 1–50 for specific rules, 100+ for general ones.</p>
+                </div>
                 <select
                   value={ruleCatId}
                   onChange={(e) => setRuleCatId(e.target.value)}
@@ -269,7 +293,7 @@ export default function SettingsPage() {
               CoinQuest stores only parsed transaction data. Raw CSV files are never saved.
             </p>
             <p className="text-[9px] text-mmorpg-steel/60 font-pixel">
-              ⚔ DISCLAIMER: For tracking only. Not financial advice.
+              For tracking only. Not financial advice.
             </p>
             <Button
               variant="destructive"

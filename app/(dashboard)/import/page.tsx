@@ -40,8 +40,9 @@ export default function ImportPage() {
 
   const handleFileChange = (f: File | null) => {
     if (!f) return;
-    if (!f.name.endsWith(".csv")) {
-      toast({ title: "Invalid file", description: "Only CSV files are supported", variant: "destructive" });
+    const name = f.name.toLowerCase();
+    if (!name.endsWith(".csv") && !name.endsWith(".pdf")) {
+      toast({ title: "Invalid file", description: "Only CSV and PDF files are supported", variant: "destructive" });
       return;
     }
     setFile(f);
@@ -71,7 +72,8 @@ export default function ImportPage() {
     formData.append("month", month);
 
     try {
-      const res = await fetch("/api/import/csv", {
+      const isPDF = file.name.toLowerCase().endsWith(".pdf");
+      const res = await fetch(isPDF ? "/api/import/pdf" : "/api/import/csv", {
         method: "POST",
         body: formData,
       });
@@ -103,6 +105,10 @@ export default function ImportPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <h1 className="font-pixel text-[12px] text-mmorpg-gold tracking-wider">Import Bank Statement</h1>
+        <p className="text-sm text-mmorpg-steel mt-1">Upload your bank CSV or PDF export to start tracking transactions.</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* Import Form */}
@@ -141,17 +147,17 @@ export default function ImportPage() {
                 <div className="flex flex-col items-center gap-2">
                   <Upload className="text-mmorpg-steel" size={32} />
                   <p className="font-pixel text-[9px] text-mmorpg-steel">
-                    Drop CSV here or click to browse
+                    Drop CSV or PDF here or click to browse
                   </p>
                   <p className="text-[10px] text-mmorpg-steel/60">
-                    Any bank CSV statement
+                    Any bank CSV or PDF statement
                   </p>
                 </div>
               )}
               <input
                 ref={fileRef}
                 type="file"
-                accept=".csv"
+                accept=".csv,.pdf"
                 className="hidden"
                 onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
               />
@@ -298,6 +304,11 @@ export default function ImportPage() {
                   name: "Debit Card (Example)",
                   format: "Transaction Date, Description, Amount, Balance",
                   note: "Export from your bank website or mobile app",
+                },
+                {
+                  name: "PDF Statement (Generic)",
+                  format: "Any PDF with date + description + amount per line",
+                  note: "Works with BSN, Agrobank, Standard Chartered, and more. Heuristic extraction — results may vary.",
                 },
               ].map((fmt) => (
                 <div key={fmt.name} className="border-b border-mmorpg-border/40 pb-2">

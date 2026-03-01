@@ -132,7 +132,7 @@ export default async function DashboardPage() {
 
         {/* LEFT: Character Panel */}
         <div className="lg:col-span-3 flex flex-col gap-4">
-          <GameWindow title="Character" icon="⚔" collapsible>
+          <GameWindow title="Your Stats" icon="📊" collapsible>
             <div className="flex flex-col gap-3">
               <div className="text-center pb-3 border-b border-mmorpg-border/50">
                 <div className="w-12 h-12 rounded-full bg-mmorpg-panelLight border-2 border-mmorpg-gold/30 flex items-center justify-center mx-auto mb-2 text-xl">
@@ -156,13 +156,13 @@ export default async function DashboardPage() {
                   value={totalSpend}
                   max={Math.max(totalSpend, prevSpend, 1000)}
                   type="hp"
-                  label="HP (Spend)"
+                  label="Spending"
                 />
                 <ResourceBar
                   value={totalIncome}
                   max={Math.max(totalIncome, totalSpend, 1)}
                   type="mp"
-                  label="MP (Income)"
+                  label="Income"
                 />
               </div>
 
@@ -332,16 +332,17 @@ export default async function DashboardPage() {
         {/* RIGHT: Quest Log */}
         <div className="lg:col-span-3 flex flex-col gap-4">
           <GameWindow
-            title="Quest Log"
-            icon="📜"
+            title="Spending Tips"
+            icon="💡"
             badge={quests.length}
             collapsible
           >
             <QuestLog quests={quests} />
             {quests.length === 0 && (
               <div className="text-center mt-2">
+                <p className="text-[9px] text-mmorpg-steel mb-1">No tips yet</p>
                 <Link href="/insights" className="text-[9px] font-pixel text-mmorpg-accentBlue">
-                  → Generate Insights
+                  → Generate AI Insights
                 </Link>
               </div>
             )}
